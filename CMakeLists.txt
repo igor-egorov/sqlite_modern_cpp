@@ -27,6 +27,7 @@ target_include_directories(
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDE_DIR}>
 )
 add_dependencies(${PROJECT_NAME} sqlite3::sqlite3)
+target_link_libraries(${PROJECT_NAME} INTERFACE sqlite3::sqlite3)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 
 include(GNUInstallDirs)
