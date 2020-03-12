@@ -6,7 +6,6 @@ if(CCACHE_FOUND)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 endif(CCACHE_FOUND)
 
-
 set(
     CMAKE_TOOLCHAIN_FILE
     "${CMAKE_SOURCE_DIR}/cmake/toolchain/cxx17.cmake"
@@ -15,14 +14,15 @@ set(
     "Default toolchain"
 )
 
-
 include("cmake/Hunter/init.cmake")
 HunterGate(
     URL "https://github.com/cpp-pm/hunter/archive/v0.23.217.tar.gz"
     SHA1 "4b36c0f8ffc8f3b5718d5e24629fb40c56c99b13"
 )
 
-project(cmake_hunter_seed)
+project(SQLiteModernCpp
+  LANGUAGES CXX
+  VERSION 1.0.0)
 
 if(NOT EXISTS "${CMAKE_TOOLCHAIN_FILE}")
   # https://cgold.readthedocs.io/en/latest/tutorials/toolchain/globals/cxx-standard.html#summary
@@ -96,6 +96,41 @@ endif()
 if(CLANG_FORMAT)
   include(cmake/clang-format.cmake)
 endif()
+
+add_library(${PROJECT_NAME} INTERFACE)
+add_dependencies(${PROJECT_NAME} sqlite3)
+target_include_directories(
+  ${PROJECT_NAME} INTERFACE
+  $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/hdr>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+include(GNUInstallDirs)
+
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}_Targets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion)
+
+configure_package_config_file(
+  "${PROJECT_SOURCE_DIR}/cmake/cmake.in"
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  INSTALL_DESTINATION
+  ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+install(EXPORT ${PROJECT_NAME}_Targets
+  FILE ${PROJECT_NAME}Targets.cmake
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/hdr DESTINATION include)
+
 
 
 
