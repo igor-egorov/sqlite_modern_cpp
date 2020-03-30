@@ -12,10 +12,7 @@ HunterGate(
   LOCAL
 )
 
-project("SQLiteModernCpp"
-  LANGUAGES CXX
-  VERSION 3.2.1
-  )
+project(SQLiteModernCpp VERSION 3.3)
 
 hunter_add_package(sqlite3)
 find_package(sqlite3 CONFIG REQUIRED)
